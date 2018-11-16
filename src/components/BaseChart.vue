@@ -1,7 +1,10 @@
 <template>
   <div>
     <section class="btn-group">
-      Change format: <button>Create Rectangles</button> <button>Create Circles</button> <button>Create Lines</button>
+      Change format: 
+        <button @click="createRectangles">Create Rectangles</button> 
+        <button @click="createCircles">Create Circles</button> 
+        <button @click="createLines">Create Lines</button>
     </section>
     <main ref="main">
     </main>
@@ -48,8 +51,6 @@ export default {
         .domain([0, yMax])
         .range([0, this.height - this.margin.top - this.margin.bottom])
 
-      this.createCircles()
-
       // create the axis
       var xAxis = d3.axisBottom().scale(this.xScale)
       var yAxis = d3.axisLeft().scale(this.yScale)
@@ -85,9 +86,20 @@ export default {
         .style('text-anchor', 'middle')
         .text('Amount Due')
     },
+    removeElements() {
+      if (document.querySelector('.contain')) {
+        let contain = document.querySelector('.contain')
+        console.log(contain)
+        contain.innerHTML = ''
+      }
+    },
     createCircles() {
+      d3.selectAll('.contain').remove()
+
       let vueThis = this
       return this.svg
+        .append('g')
+        .attr('class', 'contain')
         .selectAll('circle')
         .data(vueThis.customerData)
         .enter()
@@ -99,8 +111,12 @@ export default {
         .style('stroke', d => `hsl(${d.OrderNumber * 2.5 + 10}, 50%, 50%)`)
     },
     createRectangles() {
+      d3.selectAll('.contain').remove()
+
       let vueThis = this
       return this.svg
+        .append('g')
+        .attr('class', 'contain')
         .selectAll('rect')
         .data(vueThis.customerData)
         .enter()
@@ -125,7 +141,9 @@ export default {
         .data(vueThis.customerData)
         .enter()
         .append('path')
-        .attr('d', valueline)
+        .attr('d', function(d) {
+          return valueline
+        })
         .style('fill', 'none')
         .style('stroke', 'purple')
     }
@@ -137,6 +155,7 @@ export default {
       .attr('viewBox', `-40 -40 ${this.width + 50} ${this.height + 100}`)
 
     this.initChart()
+    this.createRectangles()
   }
 }
 </script>
