@@ -34,7 +34,6 @@ export default {
 
       // extent gets the lowest and highest values of that data
       var xExtent = d3.extent(vueThis.customerData, d => d.OrderNumber)
-      // xExtent[0] -= 4 prettify circles axis
       this.xScale = d3
         .scaleLinear()
         .domain(xExtent)
@@ -85,13 +84,19 @@ export default {
         .attr('dy', '1em')
         .style('text-anchor', 'middle')
         .text('Amount Due')
-    },
-    removeElements() {
-      if (document.querySelector('.contain')) {
-        let contain = document.querySelector('.contain')
-        console.log(contain)
-        contain.innerHTML = ''
-      }
+
+      //create a gradient to use wherever
+      var mainGradient = this.svg
+        .append('linearGradient')
+        .attr('id', 'nicegradient')
+      mainGradient
+        .append('stop')
+        .attr('class', 'start-color')
+        .attr('offset', '0')
+      mainGradient
+        .append('stop')
+        .attr('class', 'end-color')
+        .attr('offset', '1')
     },
     createCircles() {
       d3.selectAll('.contain').remove()
@@ -129,23 +134,26 @@ export default {
         .style('stroke', 'white')
     },
     createLines() {
+      d3.selectAll('.contain').remove()
       let vueThis = this
 
-      let valueline = d3
+      let data = vueThis.customerData
+      data.sort((a, b) => a.OrderNumber - b.OrderNumber)
+
+      var valueline = d3
         .line()
-        .x(d => x(d.OrderNumber))
-        .y(d => y(d.Amount_Due))
+        .x(d => vueThis.xScale(d.OrderNumber))
+        .y(d => vueThis.yScale(d.Amount_Due))
+        .curve(d3.curveCardinal)
 
       return this.svg
-        .selectAll('path')
-        .data(vueThis.customerData)
-        .enter()
+        .append('g')
+        .attr('class', 'contain')
         .append('path')
-        .attr('d', function(d) {
-          return valueline
-        })
+        .datum(data)
+        .attr('d', valueline)
         .style('fill', 'none')
-        .style('stroke', 'purple')
+        .attr('stroke', 'url(#nicegradient)')
     }
   },
   mounted() {
@@ -160,7 +168,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 svg text {
   font-family: 'Avenir', sans-serif;
 }
@@ -192,5 +200,13 @@ button {
   display: flex;
   justify-content: center;
   width: 100vw;
+}
+
+#nicegradient stop.start-color {
+  stop-color: #5f2c82;
+}
+
+#nicegradient stop.end-color {
+  stop-color: #0abfbc;
 }
 </style>
