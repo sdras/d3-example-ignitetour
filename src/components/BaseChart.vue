@@ -4,10 +4,10 @@
       Change format: 
         <button @click="createRectangles">Create Rectangles</button> 
         <button @click="createCircles">Create Circles</button> 
-        <button @click="createLines">Create Lines</button>
+        <button @click="createLines('curve')">Create Curves</button>
+        <button @click="createLines('step')">Create Steps</button>
     </section>
-    <main ref="main">
-    </main>
+    <main ref="main"></main>
   </div>
 </template>
 
@@ -133,9 +133,10 @@ export default {
         .style('fill', d => `hsl(${d.OrderNumber * 2.5 + 10}, 50%, 50%)`)
         .style('stroke', 'white')
     },
-    createLines() {
+    createLines(shape) {
       d3.selectAll('.contain').remove()
-      let vueThis = this
+      let vueThis = this,
+        currentShape = shape === 'curve' ? d3.curveCardinal : d3.curveStep
 
       let data = vueThis.customerData
       data.sort((a, b) => a.OrderNumber - b.OrderNumber)
@@ -144,7 +145,7 @@ export default {
         .line()
         .x(d => vueThis.xScale(d.OrderNumber))
         .y(d => vueThis.yScale(d.Amount_Due))
-        .curve(d3.curveCardinal)
+        .curve(currentShape)
 
       return this.svg
         .append('g')
@@ -189,6 +190,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.05em;
   cursor: pointer;
+  outline: 0;
   transition: 0.3s all ease;
   &:hover {
     background: #333;
