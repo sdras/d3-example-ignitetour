@@ -6,6 +6,7 @@
         <button @click="createCircles">Create Circles</button> 
         <button @click="createLines('curve')">Create Curves</button>
         <button @click="createLines('step')">Create Steps</button>
+        <button @click="createStars">Create Stars</button>
     </section>
     <main ref="main"></main>
   </div>
@@ -155,6 +156,35 @@ export default {
         .attr('d', valueline)
         .style('fill', 'none')
         .attr('stroke', 'url(#nicegradient)')
+    },
+    createStars() {
+      d3.selectAll('.contain').remove()
+      let vueThis = this
+
+      let symbolGenerator = d3
+        .symbol()
+        .type(d3.symbolStar)
+        .size(80)
+
+      let pathData = symbolGenerator()
+
+      return this.svg
+        .append('g')
+        .attr('class', 'contain')
+        .selectAll('path')
+        .data(vueThis.customerData)
+        .enter()
+        .append('path')
+        .attr(
+          'transform',
+          d =>
+            `translate(${vueThis.xScale(d.OrderNumber)}, ${vueThis.yScale(
+              d.Amount_Due
+            )})`
+        )
+        .attr('d', pathData)
+        .style('fill', 'none')
+        .style('stroke', d => `hsl(${d.OrderNumber * 2.5 + 10}, 50%, 50%)`)
     }
   },
   mounted() {
